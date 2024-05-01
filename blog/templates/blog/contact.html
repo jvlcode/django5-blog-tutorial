@@ -1,0 +1,52 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="container-fluid ">
+    <div class="d-flex justify-content-center mt-5">
+        <div class="d-flex gap-3 flex-column">
+            <h3>Contact Form</h3>
+            <!-- Error messages -->
+            {% for field in form  %}
+                {% if field.errors %}
+                    <div class="col-12">
+                        <span class="fw-bold"> {{field.label_tag}} </span>
+                        {% for error in field.errors %}
+                        <span class="text-danger"> {{error}} </span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+               
+            {% endfor %}
+            
+            <!-- Success message -->
+            {% if success_message %}
+                    <div class="alert alert-success" role="alert">
+                        {{success_message}}
+                    </div>
+            {% endif %}
+
+            <form method="post"  class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" value="{{name}}" name="name" >
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" value="{{email}}" name="email" >
+                </div>
+                <div class="col-12">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control" id="message" name="message" value="{{message}}" rows="4" ></textarea>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+   
