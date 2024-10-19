@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'blog'
@@ -10,4 +11,5 @@ urlpatterns = [
     path("old_url", views.old_url_redirect, name="old_url" ),
     path("contact", views.contact_view, name="contact" ),
     path("about", views.about_view, name="about" ),
+    path('register/', views.register, name='register'),
 ]

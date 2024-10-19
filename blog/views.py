@@ -7,6 +7,12 @@ from django.http import Http404
 from django.core.paginator import Paginator
 from .forms import ContactForm
 
+# accounts/views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
+from .forms import UserRegistrationForm
+
 # Create your views here.
 
 # static demo data
@@ -72,3 +78,18 @@ def contact_view(request):
 def about_view(request):
     about_content = AboutUs.objects.first().content
     return render(request,'blog/about.html',{'about_content':about_content})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])  # Hash the password
+            user.save()
+            messages.success(request, 'Registration successful! You can now log in.')
+            return redirect('/register')  # Redirect to the login page or another page
+    else:
+        form = UserRegistrationForm()
+    
+    return render(request, 'accounts/register.html', {'form': form})

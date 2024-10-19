@@ -1,0 +1,4 @@
+
+*.pyc
+/blog
+/blog/__pycache__

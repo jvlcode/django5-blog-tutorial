@@ -1,0 +1,16 @@
+Register
+    create view for Register and show it /register
+    user fields are name, email, password
+    handle register request 
+    create dashboard view
+    redirect to /dashboard
+Login and Logout:
+    create login view  
+    create logout url /login and handle logout
+    fields are username and password
+    handle the login and redirect to dashboard
+Forgot Password
+    create view for enter email
+    send reset email link to useremail
+    links redirect to reset user password
+    redirects to login 
