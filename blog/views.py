@@ -11,7 +11,9 @@ from .forms import ContactForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, UserLoginForm
+from django.contrib.auth import authenticate, login as auth_login
+
 
 # Create your views here.
 
@@ -80,7 +82,7 @@ def about_view(request):
     return render(request,'blog/about.html',{'about_content':about_content})
 
 
-def register(request):
+def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -88,8 +90,34 @@ def register(request):
             user.set_password(form.cleaned_data['password'])  # Hash the password
             user.save()
             messages.success(request, 'Registration successful! You can now log in.')
-            return redirect('/register')  # Redirect to the login page or another page
+            return redirect('/login')  # Redirect to the login page or another page
     else:
         form = UserRegistrationForm()
     
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'blog/register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                auth_login(request,user)
+                return redirect('blog:dashboard')
+            
+        messages.error(request, 'Invalid username or password')
+    else:
+        form = UserLoginForm()
+    
+    return render(request, 'blog/login.html', {'form': form})
+
+def dashboard_view(request):
+     return render(request, 'blog/index.html')
+
+from django.contrib.auth import logout
+
+def logout_view(request):
+    logout(request)  # Logs out the user
+    return redirect('/login')  # Redirect to the login page or home page
