@@ -3,6 +3,7 @@ from django import forms
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from .models import Post, Category
 
 class ContactForm(forms.Form):
     name = forms.CharField(label='Name', max_length=100, required=True)
@@ -41,3 +42,32 @@ class UserLoginForm(forms.Form):
                     raise forms.ValidationError("Invalid username or password")
         return cleaned_data
 
+class PostForm(forms.ModelForm):
+    title = forms.CharField(label='Title', max_length=200, required=True)
+    content = forms.CharField(label='Content',  required=True)
+    category = forms.ModelChoiceField(queryset=Category.objects.all(), label='Category', required=True)
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'category']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get("title")
+        content = cleaned_data.get("content")
+
+        # Custom validation example
+        if title and len(title) < 5:
+            raise  forms.ValidationError("Title must be at least 5 characters long.")
+
+        if content and len(content) < 10:
+            raise  forms.ValidationError("Content must be at least 10 characters long.")
+    def save(self, commit=True):
+        # Create a Post instance but don't save it yet
+        post = super().save(commit=False)
+        
+        # Set default image_url
+        post.img_url = 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Replace with your actual default URL
+
+        if commit:
+            post.save()  # Save the instance to the database
+        return post

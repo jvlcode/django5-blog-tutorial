@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.urls import reverse
 import logging
-from .models import Post, AboutUs
+from .models import Post, AboutUs, Category
 from django.http import Http404
 from django.core.paginator import Paginator
 from .forms import ContactForm
@@ -11,7 +11,7 @@ from .forms import ContactForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .forms import UserRegistrationForm, UserLoginForm
+from .forms import UserRegistrationForm, UserLoginForm, PostForm
 from django.contrib.auth import authenticate, login as auth_login
 
 
@@ -129,3 +129,18 @@ from django.contrib.auth import logout
 def logout_view(request):
     logout(request)  # Logs out the user
     return redirect('/login')  # Redirect to the login page or home page
+
+def newpost_view(request):
+    categories = Category.objects.all()
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user  # Set the author to the logged-in user
+            post.save()
+            return redirect('blog:dashboard')  # Change 'blog:dashboard' to your dashboard URL name
+       
+    else:
+        form = PostForm()
+    print("Debug info:",type(form))
+    return render(request,'blog/newpost.html', {'categories':categories,'form': form})  # Redirect to the login page or home page

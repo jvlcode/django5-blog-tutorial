@@ -3,7 +3,11 @@
 {% block content %}
 <div class="container-fluid ">
   <div class="row">
+      
       <h2 >{{blog_title }}</h2>
+      <div class="d-flex justify-content-center">
+        <a href="/newpost" class="btn btn-success">New Post</a>
+      </div>
   </div>
   <div class="row m-3">
       {% if page_obj %}
