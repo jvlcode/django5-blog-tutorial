@@ -106,15 +106,23 @@ def login_view(request):
             if user is not None:
                 auth_login(request,user)
                 return redirect('blog:dashboard')
-            
-        messages.error(request, 'Invalid username or password')
     else:
         form = UserLoginForm()
     
     return render(request, 'blog/login.html', {'form': form})
 
 def dashboard_view(request):
-     return render(request, 'blog/index.html')
+    blog_title = "My Posts"
+
+    # getting data from post model
+    all_posts = Post.objects.filter(user=request.user)  # Retrieve posts created by the logged-in user
+
+    # paginate
+    paginator = Paginator(all_posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request,'blog/dashboard.html', {'blog_title': blog_title, 'page_obj': page_obj})
 
 from django.contrib.auth import logout
 
