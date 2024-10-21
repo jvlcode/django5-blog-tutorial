@@ -26,6 +26,14 @@ class Post(models.Model):
 
     def __str__(self) :
         return self.title
+    
+    @property
+    def formatted_img_url(self):
+        if self.img_url:
+            # Check if the URL is a full URL
+            url = self.img_url if self.img_url.__str__().startswith(('http://', 'https://')) else self.img_url.url
+            return url
+        return 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Default image UR
 
 
 class AboutUs(models.Model):

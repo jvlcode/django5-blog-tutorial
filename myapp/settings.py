@@ -156,3 +156,5 @@ MEDIA_URL = '/media/'
 # Path where media files are stored (this should point to the `media/` folder)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+LOGIN_URL = '/login'
+

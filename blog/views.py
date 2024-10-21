@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .forms import UserRegistrationForm, UserLoginForm, PostForm
 from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -78,7 +79,12 @@ def contact_view(request):
     return render(request,'blog/contact.html')
 
 def about_view(request):
-    about_content = AboutUs.objects.first().content
+    about_content = AboutUs.objects.first()
+    if about_content is None or not about_content.content:
+        about_content = "Default content goes here."  # Replace with your desired default string
+    else:
+        about_content = about_content.content
+        
     return render(request,'blog/about.html',{'about_content':about_content})
 
 
@@ -130,6 +136,7 @@ def logout_view(request):
     logout(request)  # Logs out the user
     return redirect('/login')  # Redirect to the login page or home page
 
+@login_required
 def newpost_view(request):
     categories = Category.objects.all()
     
@@ -146,6 +153,7 @@ def newpost_view(request):
         form = PostForm()
     return render(request,'blog/newpost.html', {'categories':categories,'form': form})  # Redirect to the login page or home page
 
+@login_required
 def editpost_view(request, post_id):
     post = get_object_or_404(Post, id=post_id)  # Fetch the post by ID
     categories = Category.objects.all()  # Fetch all categories
@@ -159,3 +167,9 @@ def editpost_view(request, post_id):
         form = PostForm(instance=post)  # Pre-fill the form with the current post data
     
     return render(request, 'blog/editpost.html', {'form': form, 'categories': categories, 'post': post})
+
+def deletepost(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.delete()
+    messages.success(request, 'Post Deleted!')
+    return redirect('blog:dashboard')

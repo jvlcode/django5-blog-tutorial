@@ -3,7 +3,18 @@
 {% block content %}
 <div class="container-fluid ">
   <div class="row">
-      
+    {% if messages %}
+    <div class="container mt-3">
+        <div class="d-flex justify-content-center">
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
       <h2 >{{blog_title }}</h2>
       <div class="d-flex justify-content-center">
         <a href="/newpost" class="btn btn-success">New Post</a>
@@ -17,7 +28,7 @@
                   <div class="card-body">
                       <div class="row">
                           <div class="col-md-4">
-                              <img style="height:300; width:300;" src="{{post.img_url.url}}" class="img-fluid" alt="...">
+                              <img style="height:300; width:300;" src="{{ post.formatted_img_url }}" class="img-fluid" alt="...">
                             </div>
                           <div class="col-md-8">
                               <h5 class="card-title">{{post.title}}</h5>
@@ -28,8 +39,9 @@
                               </div>
                           </div>
                       </div>
-                      <div class="d-flex justify-content-end">
-                        <a href="{% url 'blog:editpost' post.id %}">Edit Post</a>
+                      <div class="d-flex justify-content-between mt-3">
+                        <a class="btn btn-info btn-sm text-light" href="{% url 'blog:editpost' post.id %}">Edit Post</a>
+                        <a class="btn btn-danger btn-sm text-light"  href="{% url 'blog:deletepost' post.id %}">Delete Post</a>
                       </div>
                   </div>
               </div>
