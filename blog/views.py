@@ -132,15 +132,30 @@ def logout_view(request):
 
 def newpost_view(request):
     categories = Category.objects.all()
+    
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user  # Set the author to the logged-in user
             post.save()
             return redirect('blog:dashboard')  # Change 'blog:dashboard' to your dashboard URL name
-       
+        else:
+            print("Form errors:", form.errors)  # Debug line for form errors
     else:
         form = PostForm()
-    print("Debug info:",type(form))
     return render(request,'blog/newpost.html', {'categories':categories,'form': form})  # Redirect to the login page or home page
+
+def editpost_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)  # Fetch the post by ID
+    categories = Category.objects.all()  # Fetch all categories
+    
+    if request.method == "POST":
+        form = PostForm(request.POST,request.FILES, instance=post)  # Bind the form to the post instance
+        if form.is_valid():
+            form.save()  # Save the updated Post instance
+            return redirect('blog:dashboard')  # Redirect after saving
+    else:
+        form = PostForm(instance=post)  # Pre-fill the form with the current post data
+    
+    return render(request, 'blog/editpost.html', {'form': form, 'categories': categories, 'post': post})

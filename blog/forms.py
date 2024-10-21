@@ -46,15 +46,15 @@ class PostForm(forms.ModelForm):
     title = forms.CharField(label='Title', max_length=200, required=True)
     content = forms.CharField(label='Content',  required=True)
     category = forms.ModelChoiceField(queryset=Category.objects.all(), label='Category', required=True)
+    img_url = forms.ImageField(label='Image', required=False)
     class Meta:
         model = Post
-        fields = ['title', 'content', 'category']
+        fields = ['title', 'content', 'category', 'img_url']
 
     def clean(self):
         cleaned_data = super().clean()
         title = cleaned_data.get("title")
         content = cleaned_data.get("content")
-
         # Custom validation example
         if title and len(title) < 5:
             raise  forms.ValidationError("Title must be at least 5 characters long.")
@@ -65,9 +65,10 @@ class PostForm(forms.ModelForm):
         # Create a Post instance but don't save it yet
         post = super().save(commit=False)
         
-        # Set default image_url
-        post.img_url = 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Replace with your actual default URL
-
+        if self.cleaned_data.get('img_url'):
+            post.img_url = self.cleaned_data['img_url']
+        else:
+            post.img_url = 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Default image URL
         if commit:
             post.save()  # Save the instance to the database
         return post

@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row d-flex justify-content-center mt-5">
         <div class="col-4">
-            <h3>New Post</h3>
+            <h3>Edit Post</h3>
             <div class="">
                 <!-- Error messages -->
                 {% for field in form %}
@@ -27,20 +27,21 @@
           
     
             <div class=" my-3">
-                <form method="post" enctype="multipart/form-data" >
+                <form method="post" enctype="multipart/form-data"  >
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" name="title" id="title"  value="{{ form.title.value|default:"" }}">
+                        <input type="text" class="form-control" name="title" id="title"  value="{{ post.title }}">
                     </div>
                    
                     <div class="form-group">
                         <label for="content" class="form-label">Content</label>
-                        <textarea  class="form-control" id="content" name="content">{{ form.content.value|default:"" }}</textarea>
+                        <textarea  class="form-control" id="content" name="content">{{ post.content }}</textarea>
                     </div>
+
                     <div class="form-group my-3">
                         <label for="content" class="form-label">Image</label>
-                        <input type="file"  class="form-control-file" id="image" name="img_url">
+                        <input type="file"  class="form-control-file" id="img_url" name="img_url">
                     </div>
 
                     <div class="form-group">
@@ -49,14 +50,14 @@
                             <option value=""> Select </option>
                             {% if categories %}
                                 {% for category in categories %}
-                                <option value="{{ category.id }}" {% if form.category.value == category.id|stringformat:"s" %}selected{% endif %} value="{{category.id}}"> {{category.name}} </option>
+                                <option value="{{ category.id }}" {% if post.category.id == category.id%}selected{% endif %} value="{{category.id}}"> {{category.name}} </option>
                                 {% endfor %}
                             {% endif %}
                         </select>
                     </div>
                    
                     <div class="my-3 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Create</button>
+                        <button type="submit" class="btn btn-warning">Update</button>
                     </div>
                 </form>
             </div>

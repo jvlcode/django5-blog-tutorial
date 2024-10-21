@@ -16,4 +16,5 @@ urlpatterns = [
     path('dashboard', views.dashboard_view, name='dashboard'),
     path('logout', views.logout_view, name='logout'),
     path('newpost', views.newpost_view, name='newpost'),
+    path('editpost/<int:post_id>/', views.editpost_view, name='editpost'),
 ]
