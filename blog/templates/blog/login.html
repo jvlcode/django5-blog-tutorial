@@ -24,6 +24,19 @@
                     <span class="text-danger">{{ error }}</span>
                 </div>
             {% endfor %}
+
+            {% if messages %}
+            <div class="container mt-3">
+                <div class="d-flex justify-content-center">
+                    {% for message in messages %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
     
             <div class=" my-3">
                 <form method="post" >
@@ -38,7 +51,8 @@
                         <input type="password" class="form-control" id="password" name="password">
                     </div>
                    
-                    <div class="my-3 d-flex justify-content-end">
+                    <div class="my-3 d-flex justify-content-between">
+                        <a href="/password_reset">Forgot Password</a>
                         <button type="submit" class="btn btn-primary">Login</button>
                     </div>
                 </form>

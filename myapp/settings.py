@@ -158,3 +158,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_URL = '/login'
 
+DEFAULT_FROM_EMAIL = 'your_email@example.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '0c1aabb4d4d783'
+EMAIL_HOST_PASSWORD = 'bbf5248fe48e24'

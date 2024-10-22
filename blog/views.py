@@ -2,10 +2,24 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.urls import reverse
 import logging
+
+from django.views import View
 from .models import Post, AboutUs, Category
 from django.http import Http404
 from django.core.paginator import Paginator
-from .forms import ContactForm
+from .forms import ContactForm, PasswordResetRequestForm, SetNewPasswordForm
+from django.contrib.auth.views import PasswordResetView
+from django.urls import reverse_lazy
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth import update_session_auth_hash
+
+
+
 
 # accounts/views.py
 from django.shortcuts import render, redirect
@@ -14,6 +28,10 @@ from django.contrib import messages
 from .forms import UserRegistrationForm, UserLoginForm, PostForm
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+
+from blog import forms
 
 
 # Create your views here.
@@ -173,3 +191,51 @@ def deletepost(request, post_id):
     post.delete()
     messages.success(request, 'Post Deleted!')
     return redirect('blog:dashboard')
+
+def password_reset(request):
+    form = PasswordResetRequestForm()
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            user = User.objects.get(email=email)
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            current_site = get_current_site(request)
+            subject = "Password Reset Requested"
+            message = render_to_string('blog/reset_email.html', {
+                'email': user.email,
+                'domain': current_site.domain,
+                'uid': uid,
+                'token': token,
+            })
+            send_mail(subject, message, 'noreply@example.com', [email])
+            messages.success(request, 'Email has been sent.')
+    return render(request, 'blog/password_reset_request.html', {'form': form}) 
+    
+
+def password_reset_confirm(request, uidb64, token):
+    if request.method == 'POST':
+        form = SetNewPasswordForm(request.POST)
+
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            # Decode the uidb64 to get the user ID
+            try:
+                uid = force_str(urlsafe_base64_decode(uidb64))
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+
+            if user is not None and default_token_generator.check_token(user, token):
+                user.set_password(new_password)
+                user.save()
+                update_session_auth_hash(request, user)  # Keep the user logged in
+                messages.success(request, 'Your password has been reset successfully.')
+                return redirect('blog:login')
+            else:
+                messages.error(request, 'The password reset link is invalid.')
+    else:
+        form = SetNewPasswordForm()
+
+    return render(request, 'blog/reset_confirm.html', {'form': form})

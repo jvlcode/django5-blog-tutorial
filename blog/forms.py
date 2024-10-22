@@ -72,3 +72,22 @@ class PostForm(forms.ModelForm):
         if commit:
             post.save()  # Save the instance to the database
         return post
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(label="Email", max_length=254, required=True)
+
+    def clean(self):
+        email = self.cleaned_data.get("email")
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("No user registered with this email.")
+    
+class SetNewPasswordForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput, label="New Password", min_length=8)
+    confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirm Password", min_length=8)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password = cleaned_data.get("new_password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if new_password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")

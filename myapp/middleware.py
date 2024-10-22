@@ -9,7 +9,7 @@ class RedirectAuthenticatedUserMiddleware:
         # Check if the user is authenticated
         if request.user.is_authenticated:
             # List of paths to check
-            paths_to_redirect = [reverse('blog:login'), reverse('blog:register')]
+            paths_to_redirect = [reverse('blog:login'), reverse('blog:register'), reverse('blog:password_reset')]
             # If the user is on a login or register page, redirect them
             if request.path in paths_to_redirect:
                 return redirect(reverse('blog:index'))  # Change 'home' to your desired URL
