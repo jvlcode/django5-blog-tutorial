@@ -19,7 +19,8 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     img_url = models.ImageField(upload_to='posts/images/', blank=True, null=True)
-
+    is_published = models.BooleanField(default=False)
+    
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
@@ -34,7 +35,11 @@ class Post(models.Model):
             url = self.img_url if self.img_url.__str__().startswith(('http://', 'https://')) else self.img_url.url
             return url
         return 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Default image UR
-
+    
+    class Meta:
+        permissions = [
+            ("can_publish", "Can publish articles"),
+        ]
 
 class AboutUs(models.Model):
     content = models.TextField()

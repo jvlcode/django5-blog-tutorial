@@ -70,6 +70,7 @@ class PostForm(forms.ModelForm):
         else:
             post.img_url = 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg'  # Default image URL
         if commit:
+            post.is_published = False
             post.save()  # Save the instance to the database
         return post
 class PasswordResetRequestForm(forms.Form):

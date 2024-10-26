@@ -17,6 +17,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import permission_required
 
 
 
@@ -59,7 +60,9 @@ def index(request):
 def detail(request, slug):
     # static data 
     # post = next((item for item in posts if item['id'] == int(post_id)), None)
-
+    if not (request.user.has_perm('blog.view_post') or request.user.groups.filter(name='Readers').exists()):
+        messages.error(request, 'You do not have permission to view any posts.')
+        return redirect('blog:dashboard')  # Redirect to the dashboard URL
     try:
         # getting data from model by post id
         post = Post.objects.get(slug=slug)
@@ -113,6 +116,11 @@ def register_view(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])  # Hash the password
             user.save()
+            from django.contrib.auth.models import Group
+            from django.contrib.auth import get_user_model
+
+            reader_group, _ = Group.objects.get_or_create(name='Readers')
+            user.groups.add(reader_group)
             messages.success(request, 'Registration successful! You can now log in.')
             return redirect('/login')  # Redirect to the login page or another page
     else:
@@ -145,6 +153,7 @@ def dashboard_view(request):
     paginator = Paginator(all_posts, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
 
     return render(request,'blog/dashboard.html', {'blog_title': blog_title, 'page_obj': page_obj})
 
@@ -155,6 +164,7 @@ def logout_view(request):
     return redirect('/login')  # Redirect to the login page or home page
 
 @login_required
+@permission_required('blog.can_publish', raise_exception=True)
 def newpost_view(request):
     categories = Category.objects.all()
     
@@ -191,6 +201,15 @@ def deletepost(request, post_id):
     post.delete()
     messages.success(request, 'Post Deleted!')
     return redirect('blog:dashboard')
+
+@login_required
+@permission_required('blog.can_publish', raise_exception=True)
+def publishpost(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.is_published = True
+    post.save()
+    messages.success(request, 'Post published successfully.')
+    return redirect('blog:dashboard')  # Redirect to the post detail view
 
 def password_reset(request):
     form = PasswordResetRequestForm()

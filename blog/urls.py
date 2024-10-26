@@ -18,6 +18,7 @@ urlpatterns = [
     path('newpost', views.newpost_view, name='newpost'),
     path('editpost/<int:post_id>/', views.editpost_view, name='editpost'),
     path('deletepost/<int:post_id>', views.deletepost, name='deletepost'),
+    path('publishpost/<int:post_id>', views.publishpost, name='publishpost'),
     path('password_reset/', views.password_reset, name='password_reset'),
     path('reset/<uidb64>/<token>/',views.password_reset_confirm , name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
