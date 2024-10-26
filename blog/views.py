@@ -81,7 +81,7 @@ def old_url_redirect(request):
 def new_url_view(request):
     return HttpResponse("This is the new URL")
 
-def contact_view(request):
+def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         name = request.POST.get('name')
@@ -99,7 +99,7 @@ def contact_view(request):
         return render(request,'blog/contact.html', {'form':form, 'name': name, 'email':email, 'message': message})
     return render(request,'blog/contact.html')
 
-def about_view(request):
+def about(request):
     about_content = AboutUs.objects.first()
     if about_content is None or not about_content.content:
         about_content = "Default content goes here."  # Replace with your desired default string
@@ -109,7 +109,7 @@ def about_view(request):
     return render(request,'blog/about.html',{'about_content':about_content})
 
 
-def register_view(request):
+def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -128,7 +128,7 @@ def register_view(request):
     
     return render(request, 'blog/register.html', {'form': form})
 
-def login_view(request):
+def login(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
         if form.is_valid():
@@ -143,7 +143,7 @@ def login_view(request):
     
     return render(request, 'blog/login.html', {'form': form})
 
-def dashboard_view(request):
+def dashboard(request):
     blog_title = "My Posts"
 
     # getting data from post model
@@ -159,13 +159,13 @@ def dashboard_view(request):
 
 from django.contrib.auth import logout
 
-def logout_view(request):
+def logout(request):
     logout(request)  # Logs out the user
     return redirect('/login')  # Redirect to the login page or home page
 
 @login_required
 @permission_required('blog.can_publish', raise_exception=True)
-def newpost_view(request):
+def new_post(request):
     categories = Category.objects.all()
     
     if request.method == 'POST':
@@ -182,7 +182,7 @@ def newpost_view(request):
     return render(request,'blog/newpost.html', {'categories':categories,'form': form})  # Redirect to the login page or home page
 
 @login_required
-def editpost_view(request, post_id):
+def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)  # Fetch the post by ID
     categories = Category.objects.all()  # Fetch all categories
     
@@ -196,7 +196,7 @@ def editpost_view(request, post_id):
     
     return render(request, 'blog/editpost.html', {'form': form, 'categories': categories, 'post': post})
 
-def deletepost(request, post_id):
+def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     post.delete()
     messages.success(request, 'Post Deleted!')
@@ -204,7 +204,7 @@ def deletepost(request, post_id):
 
 @login_required
 @permission_required('blog.can_publish', raise_exception=True)
-def publishpost(request, post_id):
+def publish_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     post.is_published = True
     post.save()
