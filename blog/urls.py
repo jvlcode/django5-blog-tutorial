@@ -8,6 +8,10 @@ urlpatterns = [
     path("post/<str:slug>", views.detail, name="detail"),
     path("new_something_url", views.new_url_view, name="new_page_url" ),
     path("old_url", views.old_url_redirect, name="old_url" ),
-    path("contact", views.contact_view, name="contact" ),
-    path("about", views.about_view, name="about" ),
+    path("contact", views.contact, name="contact" ),
+    path("about", views.about, name="about" ),
+    path("register", views.register, name="register" ),
+    path("login", views.login, name="login" ),
+    path("dashboard", views.dashboard, name="dashboard" ),
+    path("logout", views.logout, name="logout" ),
 ]

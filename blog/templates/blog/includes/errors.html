@@ -1,0 +1,25 @@
+<div class="d-flex flex-column">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% for error  in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <span class="text-danger">{{ error }}</span>
+        </div>
+    {% endfor %}
+    {% for field in form %}
+        {% if field.errors %}
+            <div class="alert alert-danger">
+                <span class="fw-bold">{{ field.label_tag }}</span>
+                {% for error in field.errors %}
+                <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
