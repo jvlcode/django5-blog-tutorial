@@ -7,7 +7,7 @@
               <div class="col-lg-8">
                 <h1 class="mb-4">{{post.title}} <small style="font-size:18px">({{post.category.name}})</small></h1>
                 <p class="text-muted">Posted on {{post.created_at|date:"F j, Y"}}</p>
-                <img src="{{post.img_url}}" class="img-fluid mb-4" alt="Blog Image">
+                <img src="{{post.formatted_img_url}}" class="img-fluid mb-4" alt="Blog Image">
                 <p>{{post.content}}</p>
               </div>
               <div class="col-lg-4">

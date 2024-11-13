@@ -1,9 +1,8 @@
 <div class="d-flex flex-column">
     {% if messages %}
         {% for message in messages %}
-            <div class="alert {% if message.tags == 'success' %} alert-success {% else %} alert-danger {% endif %} alert-dismissible fade show" role="alert">
+            <div class="alert {% if message.tags == 'success' %} alert-success {% else %} alert-danger {% endif %}" role="alert">
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     {% endif %}

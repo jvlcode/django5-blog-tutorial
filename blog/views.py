@@ -3,10 +3,10 @@ from django.http import HttpResponse
 from django.urls import reverse
 import logging
 
-from .models import Post, AboutUs
+from .models import Category, Post, AboutUs
 from django.http import Http404
 from django.core.paginator import Paginator
-from .forms import ContactForm, ForgotPasswordForm, ResetPasswordForm 
+from .forms import ContactForm, ForgotPasswordForm, PostForm, ResetPasswordForm 
 
 # accounts/views.py
 from django.shortcuts import render, redirect
@@ -22,6 +22,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 # static demo data
@@ -35,7 +36,7 @@ def index(request):
     blog_title = "Latest Posts"
 
     # getting data from post model
-    all_posts = Post.objects.all()
+    all_posts = Post.objects.filter(is_published=True)
 
     # paginate
     paginator = Paginator(all_posts, 5)
@@ -47,9 +48,6 @@ def index(request):
 def detail(request, slug):
     # static data 
     # post = next((item for item in posts if item['id'] == int(post_id)), None)
-    if not (request.user.has_perm('blog.view_post') or request.user.groups.filter(name='Readers').exists()):
-        messages.error(request, 'You do not have permission to view any posts.')
-        return redirect('blog:dashboard')  # Redirect to the dashboard URL
     try:
         # getting data from model by post id
         post = Post.objects.get(slug=slug)
@@ -126,7 +124,15 @@ def login(request):
 
 def dashboard(request):
     blog_title = "My Posts"
-    return render(request,'blog/dashboard.html', {'blog_title': blog_title})
+    #getting user posts
+    all_posts = Post.objects.filter(user=request.user)
+
+    # paginate
+    paginator = Paginator(all_posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request,'blog/dashboard.html', {'blog_title': blog_title, 'page_obj': page_obj})
 
 def logout(request):
     auth_logout(request) 
@@ -181,3 +187,47 @@ def reset_password(request, uidb64, token):
                 messages.error(request,'The password reset link is invalid')
 
     return render(request,'blog/reset_password.html', {'form': form})
+
+@login_required
+def new_post(request):
+    categories = Category.objects.all()
+    form = PostForm()
+    if request.method == 'POST':
+        #form
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            return redirect('blog:dashboard')
+    return render(request,'blog/new_post.html', {'categories': categories, 'form': form})
+
+@login_required
+def edit_post(request, post_id):
+    categories = Category.objects.all()
+    post = get_object_or_404(Post, id=post_id)
+    form = PostForm()
+    if request.method == "POST":
+        #form
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Post Updated Succesfully!')
+            return redirect('blog:dashboard')
+
+    return render(request,'blog/edit_post.html', {'categories': categories, 'post': post, 'form': form})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.delete()
+    messages.success(request, 'Post Deleted Succesfully!')
+    return redirect('blog:dashboard')
+
+@login_required
+def publish_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    post.is_published = True
+    post.save()
+    messages.success(request, 'Post Published Succesfully!')
+    return redirect('blog:dashboard')
